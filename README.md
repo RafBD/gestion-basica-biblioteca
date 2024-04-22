@@ -3,6 +3,7 @@
 ## Funcionalidad
 
 El sistema utiliza la biblioteca **tkinter** para crear una interfaz gráfica muy básica. Con esta se crean un menú principal y dos ventanas diferentes.
+Se utiliza la DB PyMySQL para guardar los libros ingresados y para realizar la búsqueda de los mismos.
 
 ## Tecnologías utilizadas
 
