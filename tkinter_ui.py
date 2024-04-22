@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 
 class LibraryGUI:
     
@@ -31,6 +31,14 @@ class LibraryGUI:
         self.search_book_button = tk.Button(self.main_frame, text="Buscar Libro")
         self.search_book_button.config(command=self.search_book)
         self.search_book_button.pack(pady=10)
+
+        # Boton para ver todos los libros
+        self.view_books_button = tk.Button(self.main_frame, text="Ver Todos los Libros")
+        self.view_books_button.config(command=self.show_all_books)
+        self.view_books_button.pack(pady=10)
+
+        # Guardar conexion a la base de datos como atributo de instancia
+        self.db_connection = db_connection
     
     def add_book(self):
         # Crear ventana para agregar libro
@@ -88,31 +96,125 @@ class LibraryGUI:
             messagebox.showerror("Error", "Todos los campos son requeridos")
             return
         
-        # Insertar libro en la base de datos
-        cursor = self.db_connection.cursor()
-        insert_query = "INSERT INTO libros (titulo, autor, editorial, isbn, fecha_publicacion, genero) VALUES (%s, %s, %s, %s, %s, %s)"
-        cursor.execute(insert_query, (title, author, editorial, isbn, publication_date, genre))
-        self.db_connection.commit()
-        cursor.close()
+        try:
+            # Insertar libro en la base de datos
+            cursor = self.db_connection.cursor()
+            insert_query = "INSERT INTO libros (titulo, autor, editorial, isbn, fecha_publicacion, genero) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(insert_query, (title, author, editorial, isbn, publication_date, genre))
+            self.db_connection.commit()
+            cursor.close()
 
-        # Cerrar ventana
-        self.add_book_window.destroy()
+            messagebox.showinfo("Exito", "Libro guardado exitosamente")
+
+            # Cerrar ventana
+            self.add_book_window.destroy()
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al guardar libro: {e}")
     
     def search_book(self):
         # Crear ventana para buscar libro
         self.search_book_window = tk.Toplevel()
         self.search_book_window.title("Buscar Libro")
 
-        # Crear campo de texto
-        self.search_label = tk.Label(self.search_book_window, text="Titulo:")
+        # Buscar por titulo
+        self.search_label = tk.Label(self.search_book_window, text="Buscar por titulo:")
         self.search_label.pack()
-        self.search_entry = tk.Entry(self.search_book_window)
-        self.search_entry.pack()
+        self.search_entry_title = tk.Entry(self.search_book_window)
+        self.search_entry_title.pack()
+
+        # Buscar por autor
+        self.search_label = tk.Label(self.search_book_window, text="Buscar por autor:")
+        self.search_label.pack()
+        self.search_entry_author = tk.Entry(self.search_book_window)
+        self.search_entry_author.pack()
+
+        # Buscar por Editorial
+        self.search_label = tk.Label(self.search_book_window, text="Buscar por editorial:")
+        self.search_label.pack()
+        self.search_entry_editorial = tk.Entry(self.search_book_window)
+        self.search_entry_editorial.pack()
+
+        # Buscar por Editorial
+        self.search_label = tk.Label(self.search_book_window, text="Buscar por año de publicacion:")
+        self.search_label.pack()
+        self.search_entry_publication_year = tk.Entry(self.search_book_window)
+        self.search_entry_publication_year.pack()
 
         # Boton para buscar libro
         self.search_button = tk.Button(self.search_book_window, text="Buscar")
-        self.search_button.config(command=self.search)
+        self.search_button.config(command=self.perform_search)
         self.search_button.pack(pady=10)
+
+    def perform_search(self):
+        # Obtener titulo a buscar
+        title = self.search_entry_title.get()
+        author = self.search_entry_author.get()
+        editorial = self.search_entry_editorial.get()
+        publication_year = self.search_entry_publication_year.get()
+
+        try:
+            # Limpiar ventana
+            for widget in self.search_book_window.winfo_children():
+                widget.destroy()
+
+            # Buscar libro en la base de datos
+            cursor = self.db_connection.cursor()
+            select_query = "SELECT * FROM libros WHERE titulo LIKE %s"
+            cursor.execute(select_query, (f"%{title}%",))
+            self.db_connection.commit()
+            cursor.close()
+
+            # Campo vacio
+            if title == "":
+                messagebox.showerror("Error", "El campo de busqueda esta vacio")
+                return
+            else:
+                pass
+
+            # Mostrar resultados
+            book = cursor.fetchone()
+            if book:
+                # Mostrar informacion del libro en una lista
+                book_label = tk.Label(self.search_book_window, text=f"Título:{book[1]} | Autor: {book[2]} | Editorial: {book[3]} | ISBN:{book[4]} | Año de Publicación: {book[5]} | Género: {book[6]}")
+                book_label.pack()
+            else:
+                messagebox.showinfo("Resultado", "Libro no encontrado")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al buscar libro: {e}")
+
+            # Mostrar todos los libros en una lista
+            cursor = self.db_connection.cursor()
+            select_query = "SELECT * FROM libros"
+            cursor.execute(select_query)
+            books = cursor.fetchall()
+            cursor.close()
+
+            for book in books:
+                book_label = tk.Label(self.show_books_window, text=f"Título:{book[1]} | Autor: {book[2]} | Editorial: {book[3]} | ISBN:{book[4]} | Año de Publicación: {book[5]} | Género: {book[6]}")
+                book_label.pack()
+          
+
+    def show_all_books(self):
+        self.window.resizable(True, True)
+        # Crear ventana para mostrar todos los libros
+        self.show_books_window = tk.Toplevel()
+        self.show_books_window.geometry("800x600")
+        self.show_books_window.resizable(True, True)
+        self.show_books_window.title("Todos los Libros")
+
+        # Mostrar todos los libros en una lista
+        cursor = self.db_connection.cursor()
+        select_query = "SELECT * FROM libros"
+        cursor.execute(select_query)
+        books = cursor.fetchall()
+        cursor.close()
+
+        for book in books:
+            book_label = tk.Label(self.show_books_window, text=f"Título:{book[1]} | Autor: {book[2]} | Editorial: {book[3]} | ISBN:{book[4]} | Año de Publicación: {book[5]} | Género: {book[6]}")
+            book_label.pack()
+
+
+
 
 
 if __name__ == "__main__":
