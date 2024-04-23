@@ -165,10 +165,6 @@ class LibraryGUI:
         editorial = self.search_entry_editorial.get()
         publication_year = self.search_entry_publication_year.get()
 
-        if title == "" or author == "" or editorial == "" or publication_year == "":
-            messagebox.showerror("Error", "Debe ingresar al menos un campo para buscar")
-            
-
         # Realizar la búsqueda basada en el campo no vacío
         if title:
             self.perform_generic_search("titulo", title)
@@ -221,9 +217,6 @@ class LibraryGUI:
         for book in books:
             book_label = tk.Label(self.show_books_window, text=f"Título:{book[1]} | Autor: {book[2]} | Editorial: {book[3]} | ISBN:{book[4]} | Año de Publicación: {book[5]} | Género: {book[6]}")
             book_label.pack()
-
-
-
 
 if __name__ == "__main__":
     library_gui = LibraryGUI()
