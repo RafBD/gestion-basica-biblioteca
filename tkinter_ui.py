@@ -30,7 +30,7 @@ class LibraryGUI:
 
         # Boton para registrar usuarios
         self.add_user_button = tk.Button(self.main_frame, text="Registrar Nuevo Usuario")
-        self.add_user_button.config(command=self.add_user, font=(font_family, font_size, font_weight), background=("green"), foreground=foreground_color)
+        self.add_user_button.config(command=self.add_user, font=(font_family, font_size, font_weight), background=("lightgreen"), foreground='black')
         self.add_user_button.pack(pady = pady)
 
         # Boton de agregar libro
@@ -50,12 +50,12 @@ class LibraryGUI:
 
         # Boton para devolver libro
         self.lend_book_button = tk.Button(self.main_frame, text="Devolver Libro")
-        self.lend_book_button.config(command=self.return_of_books ,font=(font_family, font_size, font_weight), background=("Gray"), foreground = foreground_color)
+        self.lend_book_button.config(command=self.return_of_books ,font=(font_family, font_size, font_weight), background=("Gray"), foreground = 'black')
         self.lend_book_button.pack(pady = pady)
 
         # Boton para ver todos los libros
         self.view_books_button = tk.Button(self.main_frame, text="Ver Todos los Libros")
-        self.view_books_button.config(command=self.show_all_books, font=(font_family, font_size, font_weight), background=("coral"), foreground = foreground_color)
+        self.view_books_button.config(command=self.show_all_books, font=(font_family, font_size, font_weight), background=("lightpink"), foreground = 'black')
         self.view_books_button.pack(pady = pady)
 
         # Ver todos los usuarios
